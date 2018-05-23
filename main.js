@@ -9,11 +9,15 @@ function createWindow() {
 
   window.loadURL(
     url.format({
-      pathname: path.join(__dirname, 'client', 'index.html'),
+      pathname: path.join(__dirname, 'dist', 'index.html'),
       protocol: 'file:',
       slashes: true,
     })
   );
+
+  try {
+    require('electron-reloader')(module);
+  } catch (err) {}
 }
 
 app.on('ready', createWindow);
