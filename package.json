@@ -10,15 +10,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "element-ui": "^2.3.9",
     "vue": "^2.5.16"
   },
   "devDependencies": {
     "babel-loader": "^7.1.4",
     "babel-preset-vue": "^2.0.2",
     "concurrently": "^3.5.1",
+    "css-loader": "^0.28.11",
     "electron": "^2.0.2",
     "electron-reloader": "^0.2.0",
+    "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.2.0",
+    "style-loader": "^0.21.0",
     "vue-loader": "^15.2.0",
     "vue-template-compiler": "^2.5.16",
     "webpack": "^4.8.3",
