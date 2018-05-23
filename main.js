@@ -5,7 +5,9 @@ const app = require('./server');
 
 try {
   require('electron-reloader')(module);
-} catch (err) {}
+} catch (err) {
+  console.log(err);
+}
 
 let window;
 
