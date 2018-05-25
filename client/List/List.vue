@@ -7,20 +7,39 @@
       </el-select>
       <el-button slot="append" icon="el-icon-search" @click="handleSearch"></el-button>
     </el-input>
+    <ul v-if="searchResults.length">
+      <li v-for="item in searchResults" :key="item.link" @click="handleSelect(item)">
+        <h3>{{item.title}}</h3>
+      </li>
+    </ul>
   </section>
 </template>
 
 <script>
+import { ipcRenderer } from 'electron';
+
 export default {
   data() {
     return {
       source: '',
       searchText: '',
+      searchResults: [],
     };
+  },
+  created() {
+    ipcRenderer.on('search-result', (e, searchResults) => {
+      this.searchResults = searchResults;
+    });
   },
   methods: {
     handleSearch(value) {
-      console.log(value);
+      ipcRenderer.send('search', {
+        source: this.source,
+        searchText: this.searchText,
+      });
+    },
+    handleSelect(item) {
+      ipcRenderer.send('select-file', item);
     },
   },
 };
