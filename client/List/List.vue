@@ -32,7 +32,8 @@ export default {
     });
   },
   methods: {
-    handleSearch(value) {
+    handleSearch() {
+      console.log('search')
       ipcRenderer.send('search', {
         source: this.source,
         searchText: this.searchText,

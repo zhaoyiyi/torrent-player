@@ -7,6 +7,7 @@ module.exports = async ({ keyword }) => {
   keyword = keyword.replace(/\s/g, '+');
   const feed = await parser.parseURL(encodeURI(URL + keyword));
 
+  console.log('received', feed.items.length)
   return feed.items.map(item => ({
     title: item.title,
     link: item.enclosure.url,
