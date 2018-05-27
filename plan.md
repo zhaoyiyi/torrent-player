@@ -13,8 +13,6 @@
 - save next episode to local storage
 
 ### player
-- need to show subtitles(convert .ass subtitles in folder to .vtt?)
-- should be able to play while downloading
-- support .mkv .mp4
+- use system's default video player
 
 
