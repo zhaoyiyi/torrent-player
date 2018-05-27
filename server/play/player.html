@@ -5,25 +5,50 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://vjs.zencdn.net/7.0.3/video-js.css" rel="stylesheet">
+  <script src="https://vjs.zencdn.net/7.0.3/video.js"></script>
 </head>
 
 <body>
-  <div id="player"></div>
+  <video id="player" controls></video>
   <script>
-    const { ipcRenderer } = require('electron');
+    const { ipcRenderer, shell } = require('electron');
     const WebTorrent = require('webtorrent');
+    const path = require('path');
+    const url = require('url');
+    const throttle = require('lodash/throttle')
 
     const client = new WebTorrent();
 
     ipcRenderer.on('play', (_, link) => {
       client.add(link, torrent => {
-        const file = torrent.files.find(file => file.name.endsWith('.mp4'))
+        const file = [...torrent.files].sort((a, b) => a.length < b.length)[0];
+        const fileIndex = torrent.files.findIndex(file => file === file);
 
         if (!file) {
           return;
         }
+        const filePath = path.resolve(torrent.path, file.path);
+        console.log(file)
+        console.log(torrent.files)
+        console.log(filePath)
 
-        file.appendTo('#player')
+        const openFile = () => {
+          console.log('opening file')
+          const result = shell.openItem(filePath)
+          console.log('open' + result)
+          return result
+        }
+
+        file.createReadStream()
+        
+        let fileOpened = false;
+        torrent.on('download', throttle(() => {
+          console.log(file.progress)
+          if (file.progress > 0.1 && !fileOpened) {
+            fileOpened = openFile();
+          }
+        }, 1000))
       })
     })
   </script>
