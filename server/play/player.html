@@ -1,57 +1,38 @@
-<!DOCTYPE html>
-<html>
+<script>
+  const { ipcRenderer, shell } = require('electron');
+  const WebTorrent = require('webtorrent');
+  const path = require('path');
+  const url = require('url');
+  const throttle = require('lodash/throttle')
 
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://vjs.zencdn.net/7.0.3/video-js.css" rel="stylesheet">
-  <script src="https://vjs.zencdn.net/7.0.3/video.js"></script>
-</head>
+  const client = new WebTorrent();
 
-<body>
-  <video id="player" controls></video>
-  <script>
-    const { ipcRenderer, shell } = require('electron');
-    const WebTorrent = require('webtorrent');
-    const path = require('path');
-    const url = require('url');
-    const throttle = require('lodash/throttle')
+  ipcRenderer.on('play', (_, link) => {
+    client.add(link, torrent => {
+      const file = [...torrent.files].sort((a, b) => a.length < b.length)[0];
+      const fileIndex = torrent.files.findIndex(file => file === file);
 
-    const client = new WebTorrent();
+      if (!file) {
+        return;
+      }
+      const filePath = path.resolve(torrent.path, file.path);
 
-    ipcRenderer.on('play', (_, link) => {
-      client.add(link, torrent => {
-        const file = [...torrent.files].sort((a, b) => a.length < b.length)[0];
-        const fileIndex = torrent.files.findIndex(file => file === file);
+      const openFile = () => {
+        console.log('opening file')
+        const result = shell.openItem(filePath)
+        console.log('open' + result)
+        return result
+      }
 
-        if (!file) {
-          return;
+      file.createReadStream()
+      
+      let fileOpened = false;
+      torrent.on('download', throttle(() => {
+        console.log(file.progress)
+        if (file.progress > 0.1 && !fileOpened) {
+          fileOpened = openFile();
         }
-        const filePath = path.resolve(torrent.path, file.path);
-        console.log(file)
-        console.log(torrent.files)
-        console.log(filePath)
-
-        const openFile = () => {
-          console.log('opening file')
-          const result = shell.openItem(filePath)
-          console.log('open' + result)
-          return result
-        }
-
-        file.createReadStream()
-        
-        let fileOpened = false;
-        torrent.on('download', throttle(() => {
-          console.log(file.progress)
-          if (file.progress > 0.1 && !fileOpened) {
-            fileOpened = openFile();
-          }
-        }, 1000))
-      })
+      }, 1000))
     })
-  </script>
-</body>
-
-</html>
+  })
+</script>
